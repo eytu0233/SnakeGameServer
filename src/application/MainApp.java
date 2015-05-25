@@ -2,6 +2,7 @@ package application;
 
 import java.io.IOException;
 
+import application.view.QRCodeOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -31,7 +32,7 @@ public class MainApp extends Application {
 
         initRootLayout();
 
-//        showPersonOverview();
+        showQRCodeOverview();
     }
 
     /**
@@ -56,15 +57,19 @@ public class MainApp extends Application {
     /**
      * Shows the person overview inside the root layout.
      */
-    public void showPersonOverview() {
+    public void showQRCodeOverview() {
         try {
-            // Load person overview.
+        	// Load person overview.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("view/PersonOverview.fxml"));
-            AnchorPane personOverview = loader.load();
+            loader.setLocation(MainApp.class.getResource("view/QRCodeOverview.fxml"));
+            AnchorPane qrCodeOverview = loader.load();
 
             // Set person overview into the center of root layout.
-            rootLayout.setCenter(personOverview);
+            rootLayout.setCenter(qrCodeOverview);
+            
+            // Give the controller access to the main app.
+            QRCodeOverviewController controller = loader.getController();
+            controller.setMainApp(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
