@@ -2,10 +2,12 @@ package application;
 
 import java.io.IOException;
 
+import application.model.MobileServer;
 import application.view.QRCodeOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -16,11 +18,19 @@ public class MainApp extends Application {
 	private Stage primaryStage;
     private BorderPane rootLayout;
     
-    /**
+    private MobileServer mobileServer;
+    
+    public MobileServer getMobileServer() {
+		return mobileServer;
+	}
+
+
+	/**
      * Constructor
      */
     public MainApp() {
         // Add some sample data
+    	mobileServer = new MobileServer();
     }
     
 
@@ -87,3 +97,5 @@ public class MainApp extends Application {
         launch(args);
     }
 }
+
+

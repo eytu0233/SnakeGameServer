@@ -6,22 +6,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class GameServer {
+public class MobileServer {
 	
 	public static final int MOBILE_PORT = 9527;
 	public static final int GAME_PORT = 9526;
 
 	private String localIP;	
-	private ServerSocket gameServer; 
+	private ServerSocket mobileServer;
+	private Socket mobileSocket;
 	
+	public Socket getMobileSocket() {
+		return mobileSocket;
+	}
+
 	public String getLocalIP() {
 		return localIP;
 	}
 
-	public GameServer(){
+	public MobileServer(){
 		try {
 			localIP = java.net.InetAddress.getLocalHost().getHostAddress();
-			gameServer = new ServerSocket(MOBILE_PORT);
+			mobileServer = new ServerSocket(MOBILE_PORT);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -31,8 +36,8 @@ public class GameServer {
 		}
 	}
 	
-	public Socket accept() throws IOException{
-		return gameServer.accept();
+	public void accept() throws IOException{
+		mobileSocket =  mobileServer.accept();
 	}
 }
 
