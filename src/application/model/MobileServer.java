@@ -12,8 +12,8 @@ public class MobileServer {
 	public static final int GAME_PORT = 9526;
 
 	private String localIP;	
-	private ServerSocket mobileServer;
-	private Socket mobileSocket;
+	private ServerSocket mobileServer, gameServer;
+	private Socket mobileSocket, gameSocket;
 	
 	public Socket getMobileSocket() {
 		return mobileSocket;
@@ -27,6 +27,7 @@ public class MobileServer {
 		try {
 			localIP = java.net.InetAddress.getLocalHost().getHostAddress();
 			mobileServer = new ServerSocket(MOBILE_PORT);
+			gameServer = new ServerSocket(GAME_PORT);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -39,27 +40,8 @@ public class MobileServer {
 	public void accept() throws IOException{
 		mobileSocket =  mobileServer.accept();
 	}
-}
-
-class Listener implements Runnable {
-
-	ObjectInputStream ois;
-
-	public Listener(ObjectInputStream ois) {
-		this.ois = ois;
+	
+	public void listenFromGame() throws IOException{
+		mobileSocket =  mobileServer.accept();
 	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		while (true) {
-			try {
-				System.out.println(ois.readObject());
-			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
 }

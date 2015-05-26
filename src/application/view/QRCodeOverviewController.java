@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.Socket;
+import java.util.concurrent.ExecutionException;
 
 import application.MainApp;
 import application.model.MobileServer;
 import application.util.QRCodeUtil;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -53,40 +56,38 @@ public class QRCodeOverviewController {
         	File QRCodeImage = QRCodeUtil.getQRCodeImageFile(String.format("%s:%d", localIP, mobilePort));
 			qrcodeImage.setImage(new Image(new FileInputStream(QRCodeImage)));
 			
-			Thread mobileServerListener = new Thread(new mobileServerListenerThread(mainApp.getMobileServer(), log));
+			Thread mobileServerListener = new Thread(new mobileServerListenerThread(mainApp.getMobileServer()));
 			mobileServerListener.start();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
     }
 	
-	
+    class mobileServerListenerThread implements Runnable
+    {
+    	private MobileServer mobileServer;
+    	
+    	public mobileServerListenerThread(MobileServer mobileServer){
+    		this.mobileServer = mobileServer;
+    	}	
+    	
+    	@Override
+    	public void run() {
+    		// TODO Auto-generated method stub
+    		
+    		Platform.runLater(()->log.setText(log.getText() + "MobileServer is listening...\n"));
+    		try {
+    			mobileServer.accept();
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		Platform.runLater(()->log.setText(log.getText() + "MobileServer accepts connection from mobile phone...\n"));
+    	}
+    	
+    }
 }
 
-class mobileServerListenerThread implements Runnable
-{
-	private MobileServer mobileServer;
-	private TextArea log;
-	
-	public mobileServerListenerThread(MobileServer mobileServer, TextArea log){
-		this.mobileServer = mobileServer;
-		this.log = log;
-	}	
-	
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-		Platform.runLater(()->log.setText(log.getText() + "MobileServer is listening...\n"));
-		try {
-			mobileServer.accept();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Platform.runLater(()->log.setText(log.getText() + "MobileServer accepts connection from mobile phone...\n"));
-	}
-	
-}
+
 
