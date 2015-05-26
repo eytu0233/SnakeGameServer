@@ -1,7 +1,7 @@
 package application.model;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -15,12 +15,20 @@ public class MobileServer {
 	private ServerSocket mobileServer, gameServer;
 	private Socket mobileSocket, gameSocket;
 	
-	public Socket getMobileSocket() {
-		return mobileSocket;
+	public InputStream getMobileServerInputStream() throws IOException{
+		if(mobileSocket != null && mobileSocket.isConnected()){
+			return mobileSocket.getInputStream();
+		}
+		
+		return null;
 	}
 
 	public String getLocalIP() {
 		return localIP;
+	}
+	
+	public boolean mobileIsConnected(){
+		return mobileSocket.isConnected();
 	}
 
 	public MobileServer(){
@@ -41,7 +49,13 @@ public class MobileServer {
 		mobileSocket =  mobileServer.accept();
 	}
 	
-	public void listenFromGame() throws IOException{
-		mobileSocket =  mobileServer.accept();
+	public void closeAllConnection() throws IOException{
+		if(mobileSocket != null && !mobileSocket.isClosed()){
+			mobileSocket.close();
+		}
+		
+		if(mobileServer != null && !mobileServer.isClosed()){
+			mobileServer.close();
+		}
 	}
 }

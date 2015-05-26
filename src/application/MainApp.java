@@ -7,7 +7,6 @@ import application.view.QRCodeOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -39,6 +38,13 @@ public class MainApp extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("SnakeGameServer");
         this.primaryStage.getIcons().add(new Image("file:resources/images/snake.png"));
+        this.primaryStage.setOnCloseRequest((event)->{if(mobileServer != null)
+			try {
+				mobileServer.closeAllConnection();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}});
 
         initRootLayout();
 

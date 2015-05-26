@@ -18,7 +18,9 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="290.0">
                <children>
-                  <ImageView fx:id="qrcodeImage" fitHeight="200.0" fitWidth="200.0" layoutX="109.0" layoutY="94.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="100.0" />
+                  <ImageView fx:id="qrcodeImage" fitHeight="200.0" fitWidth="200.0" layoutX="50.0" layoutY="50.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0" />
+                  <ImageView fx:id="gameConnectionImage" fitHeight="32.0" fitWidth="32.0" layoutX="30.0" layoutY="345.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" />
+                  <ImageView fx:id="mobileConnectionImage" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0" />
                </children>
             </AnchorPane>
         </items>
