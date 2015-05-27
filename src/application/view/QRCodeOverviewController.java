@@ -78,24 +78,35 @@ public class QRCodeOverviewController {
 					"%s:%d", localIP, mobilePort));
 			qrcodeImage.setImage(new Image(new FileInputStream(QRCodeImage)));
 
-			Thread transendListener = new Thread(() -> {
-				Thread mobileServerListener = new Thread(
-						new mobileServerListenerThread(
-								mainApp.getMobileServer()));
-				mobileServerListener.start();
-				try {
-					mobileServerListener.join();
-					DataInputStream dis = new DataInputStream(mainApp
-							.getMobileServer().getMobileServerInputStream());
-					while (mainApp.getMobileServer().mobileIsConnected()) {
-						Byte b = dis.readByte();
-						Platform.runLater(() -> log.appendText(b + "\n"));
-					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+			Thread transferListener = new Thread(
+					() -> {
+						while (!mainApp.isClosed()) {
+							Thread mobileServerListener = new Thread(
+									new mobileServerListenerThread(
+											mainApp.getMobileServer()));
+							mobileServerListener.start();
+							try {
+								mobileServerListener.join();
+								DataInputStream dis = new DataInputStream(
+										mainApp.getMobileServer()
+												.getMobileServerInputStream());
+								while (mainApp.getMobileServer()
+										.mobileIsConnected()) {
+									Byte b = dis.readByte();
+									Platform.runLater(() -> log.appendText(b
+											+ "\n"));
+								}
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (EOFException e) {// mobile client disconnection
 					// TODO Auto-generated catch block
+					Platform.runLater(() -> {
+						log.appendText("MobileClient has disconnected...\n");
+						mobileConnectionImage.setImage(new Image(
+								"file:resources/images/android_gray.png"));
+					});
+					mainApp.getMobileServer().closeAllConnection();
 					e.printStackTrace();
 				} catch (SocketException e) {// closed socket
 					// TODO Auto-generated catch block
@@ -107,8 +118,9 @@ public class QRCodeOverviewController {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			});
-			transendListener.start();
+			}
+		}	);
+			transferListener.start();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,8 +141,7 @@ public class QRCodeOverviewController {
 			Platform.runLater(() -> log
 					.appendText("MobileServer is listening...\n"));
 			try {
-				mobileServer.accept();
-
+				mobileServer.mobileAccept();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
