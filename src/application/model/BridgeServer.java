@@ -2,11 +2,12 @@ package application.model;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class MobileServer {
+public class BridgeServer {
 
 	public static final int MOBILE_PORT = 9527;
 	public static final int GAME_PORT = 9526;
@@ -22,6 +23,14 @@ public class MobileServer {
 
 		return null;
 	}
+	
+	public OutputStream getGameServerOutputStream() throws IOException {
+		if (gameSocket != null && gameSocket.isConnected()) {
+			return gameSocket.getOutputStream();
+		}
+
+		return null;
+	}
 
 	public String getLocalIP() {
 		return localIP;
@@ -30,8 +39,12 @@ public class MobileServer {
 	public boolean mobileIsConnected() {
 		return mobileSocket.isConnected();
 	}
+	
+	public boolean gameIsConnected() {
+		return mobileSocket.isConnected();
+	}
 
-	public MobileServer() {
+	public BridgeServer() {
 		try {
 			localIP = java.net.InetAddress.getLocalHost().getHostAddress();
 			mobileServer = new ServerSocket(MOBILE_PORT);
@@ -46,8 +59,13 @@ public class MobileServer {
 	}
 
 	public void mobileAccept() throws IOException {
-		if (mobileSocket == null)
+		if (mobileServer != null && mobileSocket == null)
 			mobileSocket = mobileServer.accept();
+	}
+	
+	public void gameAccept() throws IOException {
+		if (gameServer != null && gameSocket == null)
+			gameSocket = gameServer.accept();
 	}
 
 	public void closeAllConnection() {
@@ -65,8 +83,19 @@ public class MobileServer {
 			}
 		}
 
-		// if(mobileServer != null && !mobileServer.isClosed()){
-		// mobileServer.close();
-		// }
+		if (gameSocket != null) {
+			if (!gameSocket.isClosed()) {
+				try {
+					gameSocket.close();
+					gameSocket = null;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				gameSocket = null;
+			}
+		}
 	}
+
 }

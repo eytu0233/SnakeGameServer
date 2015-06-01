@@ -2,7 +2,7 @@ package application;
 
 import java.io.IOException;
 
-import application.model.MobileServer;
+import application.model.BridgeServer;
 import application.view.QRCodeOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -23,10 +23,10 @@ public class MainApp extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 
-	private MobileServer mobileServer;
+	private BridgeServer bridgeServer;
 
-	public MobileServer getMobileServer() {
-		return mobileServer;
+	public BridgeServer getBridgeServer() {
+		return bridgeServer;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class MainApp extends Application {
 	 */
 	public MainApp() {
 		// Add some sample data
-		mobileServer = new MobileServer();
+		bridgeServer = new BridgeServer();
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class MainApp extends Application {
 		this.primaryStage.getIcons().add(
 				new Image("file:resources/images/snake.png"));
 		this.primaryStage.setOnCloseRequest((event) -> {
-			if (mobileServer != null)
-				mobileServer.closeAllConnection();
+			if (bridgeServer != null)
+				bridgeServer.closeAllConnection();
 			closed = true;
 			System.exit(0);
 		});
@@ -96,7 +96,7 @@ public class MainApp extends Application {
 			e.printStackTrace();
 		}
 	}
-
+ 
 	/**
 	 * Returns the main stage.
 	 * 

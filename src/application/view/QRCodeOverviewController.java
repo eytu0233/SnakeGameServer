@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.SocketException;
 
 import application.MainApp;
-import application.model.MobileServer;
+import application.model.BridgeServer;
 import application.util.QRCodeUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -70,8 +70,8 @@ public class QRCodeOverviewController {
 	public void setMainApp(MainApp mainApp) {
 		this.mainApp = mainApp;
 
-		String localIP = mainApp.getMobileServer().getLocalIP();
-		int mobilePort = mainApp.getMobileServer().MOBILE_PORT;
+		String localIP = mainApp.getBridgeServer().getLocalIP();
+		int mobilePort = mainApp.getBridgeServer().MOBILE_PORT;
 
 		try {
 			File QRCodeImage = QRCodeUtil.getQRCodeImageFile(String.format(
@@ -83,18 +83,28 @@ public class QRCodeOverviewController {
 						while (!mainApp.isClosed()) {
 							Thread mobileServerListener = new Thread(
 									new mobileServerListenerThread(
-											mainApp.getMobileServer()));
+											mainApp.getBridgeServer()));
 							mobileServerListener.start();
+							Thread gameServerListener = new Thread(
+									new gameServerListenerThread(
+											mainApp.getBridgeServer()));
+							gameServerListener.start();
+							
 							try {
 								mobileServerListener.join();
+								gameServerListener.join();
 								DataInputStream dis = new DataInputStream(
-										mainApp.getMobileServer()
+										mainApp.getBridgeServer()
 												.getMobileServerInputStream());
-								while (mainApp.getMobileServer()
+								DataOutputStream dos = new DataOutputStream(
+										mainApp.getBridgeServer()
+												.getGameServerOutputStream());
+								while (mainApp.getBridgeServer()
 										.mobileIsConnected()) {
 									Byte b = dis.readByte();
 									Platform.runLater(() -> log.appendText(b
 											+ "\n"));
+									dos.writeByte(b);
 								}
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
@@ -102,15 +112,23 @@ public class QRCodeOverviewController {
 				} catch (EOFException e) {// mobile client disconnection
 					// TODO Auto-generated catch block
 					Platform.runLater(() -> {
-						log.appendText("MobileClient has disconnected...\n");
+						log.appendText("Mobile client has disconnected...\n");
 						mobileConnectionImage.setImage(new Image(
 								"file:resources/images/android_gray.png"));
+						gameConnectionImage.setImage(new Image(
+								"file:resources/images/snake_gray.png"));
 					});
-					mainApp.getMobileServer().closeAllConnection();
-					e.printStackTrace();
-				} catch (SocketException e) {// closed socket
+					mainApp.getBridgeServer().closeAllConnection();
+				} catch (SocketException e) {// closed socket(game client) 
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Platform.runLater(() -> {
+						log.appendText("Game client has disconnected...\n");
+						mobileConnectionImage.setImage(new Image(
+								"file:resources/images/android_gray.png"));
+						gameConnectionImage.setImage(new Image(
+								"file:resources/images/snake_gray.png"));
+					});
+					mainApp.getBridgeServer().closeAllConnection();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -128,10 +146,10 @@ public class QRCodeOverviewController {
 	}
 
 	class mobileServerListenerThread implements Runnable {
-		private MobileServer mobileServer;
+		private BridgeServer bridgeServer;
 
-		public mobileServerListenerThread(MobileServer mobileServer) {
-			this.mobileServer = mobileServer;
+		public mobileServerListenerThread(BridgeServer bridgeServer) {
+			this.bridgeServer = bridgeServer;
 		}
 
 		@Override
@@ -141,7 +159,7 @@ public class QRCodeOverviewController {
 			Platform.runLater(() -> log
 					.appendText("MobileServer is listening...\n"));
 			try {
-				mobileServer.mobileAccept();
+				bridgeServer.mobileAccept();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -153,6 +171,37 @@ public class QRCodeOverviewController {
 				log.appendText("MobileServer accepts connection from mobile phone...\n");
 				mobileConnectionImage.setImage(new Image(
 						"file:resources/images/android.png"));
+			});
+		}
+
+	}
+	
+	class gameServerListenerThread implements Runnable {
+		private BridgeServer bridgeServer;
+
+		public gameServerListenerThread(BridgeServer bridgeServer) {
+			this.bridgeServer = bridgeServer;
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+
+			Platform.runLater(() -> log
+					.appendText("gameServer is listening...\n"));
+			try {
+				bridgeServer.gameAccept();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Platform.runLater(() -> {
+				log.appendText("GameServer accepts connection from pxa270...\n");
+				gameConnectionImage.setImage(new Image(
+						"file:resources/images/snake.png"));
 			});
 		}
 
