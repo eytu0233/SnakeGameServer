@@ -104,7 +104,11 @@ public class QRCodeOverviewController {
 									Byte b = dis.readByte();
 									Platform.runLater(() -> log.appendText(b
 											+ "\n"));
-									dos.writeByte(b);
+									if(mainApp.getBridgeServer().gameIsConnected()) {
+										dos.writeByte(b);
+									}else{
+										throw new SocketException();
+									}
 								}
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
